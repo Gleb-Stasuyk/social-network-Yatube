@@ -13,7 +13,8 @@ __pycache__/
 .LSOverride
 .vscode
 posts/file.txt
-posts/file.jpgg
+posts/file.jpg
+posts/file.docx
 
 *.sublime-project
 *.sublime-workspace
