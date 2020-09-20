@@ -33,6 +33,7 @@
                                                 </div>
                                         </li>
                                         {% if user.is_authenticated %}
+                                        {% if flag_me %}
                                         <li class="list-group-item">
                                                 {% if followers %}
                                                 <a class="btn btn-lg btn-light" 
@@ -46,6 +47,7 @@
                                                 </a>
                                                 {% endif %}
                                             </li>
+                                        {% endif %}
                                         {% endif %}
                                 </ul>
                         </div>
