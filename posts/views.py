@@ -60,7 +60,7 @@ def profile(request, username):
         user = User.objects.get(username=request.user)
         following = True if Follow.objects.filter(
             author=author, user=user).count() > 0 else False
-    if request.user == author.username:
+    if request.user.username == username:
         flag_me = True
     context = {
         'page': page,
@@ -145,12 +145,12 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
-    if request.user == username:
-        author = get_object_or_404(User, username=username)
-        user = User.objects.get(username=request.user)
-        Follow.objects.create(author=author, user=user).save()
+    if request.user.username == username:
         return redirect(reverse('profile', kwargs={
-            'username': username}))
+        'username': username}))
+    author = get_object_or_404(User, username=username)
+    user = User.objects.get(username=request.user)
+    Follow.objects.create(author=author, user=user).save()
     return redirect(reverse('profile', kwargs={
         'username': username}))
 

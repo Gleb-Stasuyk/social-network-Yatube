@@ -32,10 +32,9 @@
                                                         Записей: {{paginator.count}}
                                                 </div>
                                         </li>
-                                        {% if user.is_authenticated %}
-                                        {% if flag_me %}
+                                        {% if user.is_authenticated and not flag_me %}
                                         <li class="list-group-item">
-                                                {% if followers %}
+                                                {% if following %}
                                                 <a class="btn btn-lg btn-light" 
                                                         href="{% url 'profile_unfollow' author.username %}" role="button"> 
                                                         Отписаться 
@@ -47,7 +46,6 @@
                                                 </a>
                                                 {% endif %}
                                             </li>
-                                        {% endif %}
                                         {% endif %}
                                 </ul>
                         </div>
