@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Создание нового поста{% endblock %}
+
+{% block content %}
+
+
+{% if request.resolver_match.url_name ==  'new_post'%}
+<form method="post" action="{% url 'new_post' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <p>Добавить запись</p>
+    {{ form.as_p }}
+    <input type="submit" value="Добавить">
+</form>
+{% else %}
+
+<form method="post" action="{% url 'post_edit' post.author post.id%}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <p>Редактировать запись</p>
+    {{ form.as_p }}
+    <input type="submit" value="Сохранить">
+</form>
+
+{% endif %}
+
+
+{% endblock %}

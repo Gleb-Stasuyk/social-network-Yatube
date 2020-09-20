@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %} Страница Follow {% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    {% include "posts/menu.html" with index=True %}
+
+    <h1> Страница Follow </h1>
+    <!-- Вывод ленты записей -->
+    {% for post in page %}
+
+    {% include "posts/post_item.html" with post=post %}
+
+    {% endfor %}
+</div>
+
+
+<!-- Вывод паджинатора -->
+{% if page.has_other_pages %}
+
+{% include "posts/paginator.html" with items=page paginator=paginator%}
+{% endif %}
+
+
+{% endblock %}
