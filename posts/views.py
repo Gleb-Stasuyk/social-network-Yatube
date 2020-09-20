@@ -127,6 +127,7 @@ def add_comment(request, username, post_id):
         new_comment.post = post
         new_comment.save()
         return redirect("post", username=username, post_id=post_id)
+    return redirect("post", username=username, post_id=post_id)
 
 
 @login_required
