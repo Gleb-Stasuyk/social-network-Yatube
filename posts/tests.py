@@ -86,8 +86,12 @@ class TestNewfunctionalof6Sprint(TestCase):
     def test_img_in_post_page(self):
         text = 'post with image'
         with open('posts/file.jpg', 'rb') as img:
-            self.client_auth.post(reverse('post_edit', kwargs={'username': self.user.username, 'post_id': 1}), data={
-                                  'author': self.user, 'text': text, 'image': img}, follow=True)
+            url = reverse('post_edit', kwargs={
+                          'username': self.user.username, 'post_id': 1})
+            self.client_auth.post(url, data={
+                                  'author': self.user,
+                                  'text': text,
+                                  'image': img}, follow=True)
             response = self.client_auth.get(
                 reverse('post', kwargs={'username': self.user.username, 'post_id': 1}))
             self.assertContains(response, '<img class="card-img"', count=None,
@@ -100,8 +104,13 @@ class TestNewfunctionalof6Sprint(TestCase):
                             'username': self.user.username}),
                     reverse('group', kwargs={'slug': self.group.slug})]
         with open('posts/file.jpg', 'rb') as img:
-            self.client_auth.post(reverse('post_edit', kwargs={'username': self.user.username, 'post_id': 1}), data={
-                                  'author': self.user, 'text': text, 'image': img, 'group': self.group.pk}, follow=True)
+            url = reverse('post_edit', kwargs={
+                          'username': self.user.username, 'post_id': 1})
+            self.client_auth.post(url, data={
+                'author': self.user,
+                'text': text,
+                'image': img,
+                'group': self.group.pk}, follow=True)
             cache.clear()
             for url in url_list:
                 response = self.client_auth.get(url)
@@ -110,9 +119,12 @@ class TestNewfunctionalof6Sprint(TestCase):
 
     def test_non_graph_file(self):
         with open('posts/file.docx', 'rb') as img:
-            response = self.client_auth.post(reverse('post_edit', kwargs={'username': self.user.username, 'post_id': 1}), data={
+            url = reverse('post_edit', kwargs={
+                          'username': self.user.username, 'post_id': 1})
+            response = self.client_auth.post(url, data={
                 'author': self.user, 'text': 'text321', 'image': img}, follow=True)
-            error_text = 'Загрузите правильное изображение. Файл, который вы загрузили, поврежден или не является изображением.'
+            error_text = 'Загрузите правильное изображение. Файл, который вы загрузили, ' \
+            'поврежден или не является изображением.'
             self.assertFormError(response, 'form', 'image', error_text)
 
     def test_cache_index(self):

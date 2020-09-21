@@ -148,7 +148,7 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
-    if request.user.username == username or Follow.objects.filter(author=author, user=request.user).count() != 0:
+    if request.user.username == username or Follow.objects.filter(author=author, user=request.user).exists():
         # os.path.exists() не работает как нужно, иного экзиста не нашел
         return redirect(reverse('profile', kwargs={
             'username': username}))
