@@ -16,52 +16,52 @@ class TestFinalTask6Sprint(TestCase):
         self.client_auth.force_login(self.user_clone)
         self.client_auth.post(reverse('new_post'), data={
                               'text': 'test_text'}, follow=True)
+        self.client.force_login(self.user)
+        self.client.post(reverse('new_post'), data={
+            'text': 'test_text'}, follow=True)
+        self.url_comment = reverse('post', kwargs={
+            'post_id': 1, 'username': self.user_clone.username})
+        self.url_add_comment = reverse('add_comment', kwargs={
+            'post_id': 1, 'username': self.user_clone.username})
 
     def test_CRUD_follow(self):
         self.assertEqual(Follow.objects.count(), 0)
         url = reverse('profile_follow', kwargs={
-                      'username': self.user_clone.username})
+                      'username': self.user.username})
         self.client_auth.get(url, follow=True)
         self.assertEqual(Follow.objects.count(), 1)
         url = reverse('profile_unfollow', kwargs={
-            'username': self.user_clone.username})
+            'username': self.user.username})
         self.client_auth.get(url, follow=True)
         self.assertEqual(Follow.objects.count(), 0)
 
-    def test_new_post_menu(self):
-        self.assertEqual(Follow.objects.count(), 0)
-        self.assertEqual(Post.objects.count(), 1)
+    def test_new_post_menu_not_follow(self):
+        # проверка на наличие постов у неподписанного юзера
         response = self.client_auth.get(reverse('follow_index'))
+        self.assertEqual(Follow.objects.count(), 0)
         self.assertEqual(response.context['paginator'].count, 0)
+
+    def test_new_post_menu_follow(self):
+        # проверка на наличие постов у подписанного юзера
         url = reverse('profile_follow', kwargs={
-                      'username': self.user_clone.username})
+            'username': self.user.username})
         self.client_auth.get(url, follow=True)
         self.assertEqual(Follow.objects.count(), 1)
         response = self.client_auth.get(reverse('follow_index'))
         self.assertEqual(response.context['paginator'].count, 1)
-        url = reverse('profile_unfollow', kwargs={
-            'username': self.user_clone.username})
-        self.client_auth.get(url, follow=True)
-        self.assertEqual(Follow.objects.count(), 0)
-        response = self.client_auth.get(reverse('follow_index'))
-        self.assertEqual(response.context['paginator'].count, 0)
 
-    def test_new_comment_auth_only(self):
-        self.assertEqual(Comment.objects.count(), 0)
-        url_post = reverse('post', kwargs={
-            'post_id': 1, 'username': self.user_clone.username})
-        response_get = self.client.get(url_post)
-        self.assertEqual(response_get.context['comments'].count(), 0)
-        url = reverse('add_comment', kwargs={
-                      'post_id': 1, 'username': self.user_clone.username})
+    def test_new_comment_auth(self):
         self.client_auth.post(
-            url, data={'text': 'test_comment_text'}, follow=True)
-        response_get = self.client.get(url_post)
+            self.url_add_comment, data={'text': 'test_comment_text'}, follow=True)
+        response_get = self.client.get(self.url_comment)
         self.assertEqual(response_get.context['comments'].count(), 1)
-        response_post = self.client.post(
-            url, data={'text': 'test_comment_text2'}, follow=True)
-        response_get = self.client.get(url_post)
-        self.assertEqual(response_get.context['comments'].count(), 1)
+
+    def test_new_comment_not_auth(self):
+        self.client.logout()
+        self.client.post(self.url_add_comment, data={
+                         'text': 'test_comment_text2'}, follow=True)
+        response_get = self.client.get(self.url_comment)
+        self.assertEqual(response_get.context['comments'].count(), 0)
 
 
 class TestNewfunctionalof6Sprint(TestCase):

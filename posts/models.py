@@ -50,3 +50,6 @@ class Follow(models.Model):
 
     def __str__(self):
         return f'Подписан {self.user.username} на {self.author.username}'
+
+    class Meta:
+        unique_together = ('user', 'author')

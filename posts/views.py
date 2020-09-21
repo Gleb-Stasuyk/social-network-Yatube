@@ -136,10 +136,7 @@ def add_comment(request, username, post_id):
 
 @login_required
 def follow_index(request):
-    user = get_object_or_404(User, username=request.user)
-    followers_list = [x.author for x in user.follower.all()]
-    post_list = Post.objects.filter(
-        author__in=followers_list).order_by('-pub_date').all()
+    post_list = Post.objects.filter(author__following__user=request.user)
     paginator = Paginator(post_list, 10)
     # переменная в URL с номером запрошенной страницы
     page_number = request.GET.get('page')
@@ -151,11 +148,11 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
-    user = User.objects.get(username=request.user)
-    if request.user.username == username or Follow.objects.filter(author=author, user=user).count() != 0:
+    if request.user.username == username or Follow.objects.filter(author=author, user=request.user).count() != 0:
+        # os.path.exists() не работает как нужно, иного экзиста не нашел
         return redirect(reverse('profile', kwargs={
             'username': username}))
-    Follow.objects.create(author=author, user=user).save()
+    Follow.objects.create(author=author, user=request.user)
     return redirect(reverse('profile', kwargs={
         'username': username}))
 
@@ -163,7 +160,6 @@ def profile_follow(request, username):
 @login_required
 def profile_unfollow(request, username):
     author = get_object_or_404(User, username=username)
-    user = User.objects.get(username=request.user)
-    Follow.objects.filter(author=author, user=user).delete()
+    Follow.objects.filter(author=author, user=request.user).delete()
     return redirect(reverse('profile', kwargs={
         'username': username}))
