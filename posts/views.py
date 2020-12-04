@@ -1,12 +1,10 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import CreateView
-from django.core.paginator import Paginator
-from django.urls import reverse_lazy, reverse
-from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.cache import cache_page
-from .models import Post, Group, User, Comment, Follow
-from .forms import PostForm, CommentForm
+from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+
+from .forms import CommentForm, PostForm
+from .models import Comment, Follow, Group, Post, User
 
 
 def index(request):
@@ -32,7 +30,8 @@ def group_posts(request, slug):
 
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
-    return render(request, "group.html", {'page': page, 'paginator': paginator, 'group': group})
+    return render(request, "group.html",
+                  {'page': page, 'paginator': paginator, 'group': group})
 
 
 @login_required
@@ -94,6 +93,13 @@ def post_view(request, username, post_id):
 
 @login_required
 def post_edit(request, username, post_id):
+    """
+    Возможность редактирования поста автором.
+    :param request:
+    :param username:
+    :param post_id:
+    :return:
+    """
     post = get_object_or_404(Post, author__username=username, pk=post_id)
     form = PostForm(request.POST or None,
                     files=request.FILES or None, instance=post)
@@ -103,7 +109,8 @@ def post_edit(request, username, post_id):
         new_post = form.save(commit=False)
         new_post.save()
         return redirect("post", username=username, post_id=post_id)
-    return render(request, 'posts/new_post.html', {'form': form, 'post': post})
+    return render(request, 'posts/new_post.html',
+                  {'form': form, 'post': post})
 
 
 def page_not_found(request, exception):
@@ -138,15 +145,17 @@ def add_comment(request, username, post_id):
 def follow_index(request):
     post_list = Post.objects.filter(author__following__user=request.user)
     paginator = Paginator(post_list, 10)
-    # переменная в URL с номером запрошенной страницы
     page_number = request.GET.get('page')
-    # получить записи с нужным смещением
     page = paginator.get_page(page_number)
-    return render(request, "posts/follow.html", {'page': page, 'paginator': paginator})
+    return render(request, "posts/follow.html",
+                  {'page': page, 'paginator': paginator})
 
 
 @login_required
 def profile_follow(request, username):
+    """Подписка на пользователя
+    с ограничением возможности подписаться на себя или дважды на юзера
+    """
     author = get_object_or_404(User, username=username)
     if request.user.username == username or Follow.objects.filter(
             author=author, user=request.user).exists():
@@ -159,6 +168,7 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
+    """Отписаться от пользователя"""
     author = get_object_or_404(User, username=username)
     Follow.objects.filter(author=author, user=request.user).delete()
     return redirect(reverse('profile', kwargs={

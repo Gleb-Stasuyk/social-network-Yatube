@@ -1,7 +1,8 @@
-from django.test import TestCase, Client
-from django.urls import reverse
 from django.core.cache import cache
-from .models import User, Post, Group, Follow, Comment
+from django.test import Client, TestCase
+from django.urls import reverse
+
+from .models import Comment, Follow, Group, Post, User
 
 
 class TestFinalTask6Sprint(TestCase):
