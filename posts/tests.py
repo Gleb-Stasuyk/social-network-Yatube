@@ -2,7 +2,7 @@ from django.core.cache import cache
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from .models import Comment, Follow, Group, Post, User
+from .models import Follow, Group, User
 
 
 class TestFinalTask6Sprint(TestCase):
@@ -184,8 +184,11 @@ class TestNewfunctionalof5Sprint(TestCase):
                              target_status_code=200, fetch_redirect_response=True)
 
     def test_post_creation(self):
-        # После публикации поста новая запись появляется на главной странице сайта (index),
-        # на персональной странице пользователя (profile), и на отдельной странице поста (post)
+        """
+        Тест проверяет, что после публикации поста новая запись появляется на главной странице сайта (index),
+        на персональной странице пользователя (profile), и на отдельной странице поста (post)
+        """
+
         self.client_auth.post(
             self.new_post_url,
             data={'text': self.test_text},
